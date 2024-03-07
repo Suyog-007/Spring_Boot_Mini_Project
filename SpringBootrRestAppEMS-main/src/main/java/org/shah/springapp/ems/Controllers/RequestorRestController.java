@@ -2,13 +2,12 @@ package org.shah.springapp.ems.Controllers;
 
 import org.shah.springapp.ems.Domains.Demand;
 import org.shah.springapp.ems.Domains.Member;
+import org.shah.springapp.ems.Domains.Request;
 import org.shah.springapp.ems.Repository.DemandRepository;
 import org.shah.springapp.ems.Repository.MemberRepository;
-import org.shah.springapp.ems.Services.DemandFilterService;
-import org.shah.springapp.ems.Services.DemandMemberService;
-import org.shah.springapp.ems.Services.MemberFilterService;
+import org.shah.springapp.ems.Repository.RequestRepository;
+import org.shah.springapp.ems.Services.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -70,7 +69,7 @@ public class RequestorRestController {
             existingMember.setProjectId(updatedMember.getProjectId());
             existingMember.setProjectName(updatedMember.getProjectName());
             existingMember.setMangerName(updatedMember.getMangerName());
-            existingMember.setLevel(updatedMember.getLevel());
+            existingMember.setPositionLevel(updatedMember.getPositionLevel());
             existingMember.setCity(updatedMember.getCity());
             existingMember.setSkills(updatedMember.getSkills());
             existingMember.setDuration((updatedMember.getDuration()));
@@ -85,7 +84,7 @@ public class RequestorRestController {
     @Autowired
     private MemberFilterService memberFilterService;
 
-    @GetMapping("/members/filter")
+    @GetMapping("/members/filternotskill")
     public List<Member> filterMembers(
             @RequestParam(required = false) String employeeId,
             @RequestParam(required = false) String firstName,
@@ -94,19 +93,16 @@ public class RequestorRestController {
             @RequestParam(required = false) String location,
             @RequestParam(required = false) Integer experience,
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) String positionLevel,
-            @RequestParam(required = false) String skillKey,
-            @RequestParam(required = false) Integer skillValue,
-            @RequestParam(required = false, defaultValue = "ASC") Sort.Direction sortOrder) {
+            @RequestParam(required = false) String positionLevel) {
 
         return memberFilterService.filterMembers(employeeId, firstName, lastName, dateOfJoining, location,
-                experience, status, positionLevel, skillKey, skillValue,sortOrder);
+                experience, status, positionLevel);
     }
 
     @Autowired
     private DemandFilterService demandFilterService;
 
-    @GetMapping("/demands/filter")
+    @GetMapping("/demands/filternotskill")
     public List<Demand> filterDemands(
             @RequestParam(required = false) String projectId,
             @RequestParam(required = false) String projectName,
@@ -116,16 +112,13 @@ public class RequestorRestController {
             @RequestParam(required = false) String city,
             @RequestParam(required = false) Double duration,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String skillKey,
-            @RequestParam(required = false) Integer skillValue) {
+            @RequestParam(required = false) String status) {
 
         return demandFilterService.filterDemands(projectId, projectName, managerName, managerId,
-                level, city, duration, startDate, status,
-                skillKey, skillValue);
+                level, city, duration, startDate, status);
     }
 
-    @Autowired
+     @Autowired
     private DemandMemberService demandMemberService;
 
     @GetMapping("/members/demands/{id}")
@@ -133,5 +126,52 @@ public class RequestorRestController {
         return demandMemberService.findMemberForDemand(id);
     }
 
+    @Autowired
+    private DemandFilterbySkill demandFilterbySkill;
+    @GetMapping("/demands/filter")
+    public List<Demand> getDemandsBySkill(
+            @RequestParam(required = false) String projectId,
+            @RequestParam(required = false) String projectName,
+            @RequestParam(required = false) String managerName,
+            @RequestParam(required = false) String managerId,
+            @RequestParam(required = false) String level,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) Double duration,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String skill) {
+
+        return demandFilterbySkill.getDemandsBySkill(projectId, projectName, managerName, managerId,
+                level, city, duration, startDate, status,skill);
+    }
+
+    @Autowired
+    private MemberFilterbySkill memberFilterbySkill;
+    @GetMapping("/members/filter")
+    public List<Member> getMembersBySkill(
+            @RequestParam(required = false) String employeeId,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false)  @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateOfJoining,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) Integer experience,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String positionLevel,
+            @RequestParam(required = false) String skill) {
+        return memberFilterbySkill.filterMembers(employeeId, firstName, lastName, dateOfJoining, location,
+                experience, status, positionLevel,skill);
+    }
+
+    @Autowired
+    private RequestCreator requestCreator;
+
+    @Autowired
+    private RequestRepository requestRepository;
+
+    @PostMapping("/members/{member_id}/demands/{demand_id}")
+    public Request createRequestDemand(@PathVariable long demand_id, @PathVariable long member_id){
+        Request r = requestCreator.createRequest(demand_id,member_id);
+        return  requestRepository.save(r);
+    }
 
 }

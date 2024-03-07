@@ -46,26 +46,31 @@ private Map<String,Integer> Skills = new HashMap<>();
         Skills = skills;
     }
 
-    public enum status_enum{
-        AVAILABLE,ASSIGNED
-    }
-    @Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    private status_enum status;
+//    public enum status_enum{
+//        AVAILABLE,ASSIGNED
+//    }
+//    @Column(name = "status")
+//    @Enumerated(EnumType.STRING)
+//    private status_enum status;
 
-    public enum positionLevel_enum{
-        A00, A01, A02, A03,
-        AS1, AS2,
-        P01, P02, P03, P04,
-        PS1,PS2, PS3, PS4,
-        M01, M02,M03,
-        E01,E02,E03,E04,
-        MS1,MS2,
-        ES1,ES2;
-    }
-    @Column(name = "position_level")
-    @Enumerated(EnumType.STRING)
-    private positionLevel_enum positionLevel;
+    @Column(name ="status")
+    private String status;
+//    public enum positionLevel_enum{
+//        A00, A01, A02, A03,
+//        AS1, AS2,
+//        P01, P02, P03, P04,
+//        PS1,PS2, PS3, PS4,
+//        M01, M02,M03,
+//        E01,E02,E03,E04,
+//        MS1,MS2,
+//        ES1,ES2;
+//    }
+//    @Column(name = "position_level")
+//    @Enumerated(EnumType.STRING)
+//    private positionLevel_enum positionLevel;
+
+    @Column(name ="position_level")
+    private String positionLevel;
 
     // getters and setters
 
@@ -126,19 +131,40 @@ private Map<String,Integer> Skills = new HashMap<>();
         this.location = location;
     }
 
-    public positionLevel_enum getPositionLevel() {
+//    public positionLevel_enum getPositionLevel() {
+//        return positionLevel;
+//    }
+//
+//    public void setPositionLevel(positionLevel_enum positionLevel) {
+//        this.positionLevel = positionLevel;
+//    }
+
+//    public status_enum getStatus() {
+//        return status;
+//    }
+//
+//    public void setStatus(status_enum status) {
+//        this.status = status;
+//    }
+
+
+    public String getPositionLevel() {
         return positionLevel;
     }
 
-    public void setPositionLevel(positionLevel_enum positionLevel) {
+    public void setPositionLevel(String positionLevel) {
         this.positionLevel = positionLevel;
     }
 
-    public status_enum getStatus() {
-        return status;
+    public Map<String, Integer> getSkills() {
+        return Skills;
     }
 
-    public void setStatus(status_enum status) {
+    public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getStatus() {
+        return status;
     }
 }

@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface DemandRepository extends JpaRepository<Demand,Long> {
     List<Demand> findAll(Specification<Demand> spec);
+
 }

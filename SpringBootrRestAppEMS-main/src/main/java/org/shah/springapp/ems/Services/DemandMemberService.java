@@ -7,6 +7,7 @@ import org.shah.springapp.ems.Repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -24,12 +25,28 @@ public class DemandMemberService {
     public List<Member> findMemberForDemand(long demandId){
         Demand demand = demandRepository.findById(demandId).orElse(null);
         if(demand != null){
-            String positionLevel = String.valueOf(demand.getLevel());
+            String positionLevel = demand.getPositionLevel();
             String city = demand.getCity();
+            ArrayList<String> skills = demand.getSkills();
             List<Member> allMembers = memberRepository.findAll();
-            return allMembers.stream().filter(member -> {
-                return member.getPositionLevel().equals(positionLevel) && member.getLocation().equalsIgnoreCase(city);
-            }).collect(Collectors.toList());
+            List<Member> res = new ArrayList<>();
+            for(Member m : allMembers){
+                if(m.getPositionLevel().contains(positionLevel) && m.getLocation().contains(city)){
+                    boolean flag = true;
+                    for(String s : skills){
+                        if(!m.getSkills().containsKey(s)){
+                            flag = false;
+                        }
+                    }
+                    if(flag){
+                        res.add(m);
+                    }
+                }
+            }
+            return res;
+//            return allMembers.stream().filter(member -> {
+//                return member.getPositionLevel().equalsIgnoreCase(positionLevel) || member.getLocation().equalsIgnoreCase(city);
+//            }).collect(Collectors.toList());
         }else{
             return Collections.emptyList();
         }

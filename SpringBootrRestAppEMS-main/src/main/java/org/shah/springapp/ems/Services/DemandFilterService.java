@@ -22,17 +22,15 @@ public class DemandFilterService {
 
     public List<Demand> filterDemands(String projectId, String projectName, String managerName,
                                       String managerId, String level, String city,
-                                      Double duration, Date startDate, String status,
-                                      String skillKey, Integer skillValue) {
+                                      Double duration, Date startDate, String status) {
         Specification<Demand> spec = createSpecification(projectId, projectName, managerName,
-                managerId, level, city, duration,startDate, status, skillKey, skillValue);
+                managerId, level, city, duration,startDate, status);
         return demandRepository.findAll(spec);
     }
 
-    private Specification<Demand> createSpecification(String projectId, String projectName, String managerName,
+    public Specification<Demand> createSpecification(String projectId, String projectName, String managerName,
                                                       String managerId, String level, String city,
-                                                      Double duration, Date startDate, String status,
-                                                      String skillKey, Integer skillValue) {
+                                                      Double duration, Date startDate, String status) {
         return (root, query, cb) -> {
             // Initialize predicate list
             Predicate predicate = cb.conjunction();
@@ -65,10 +63,6 @@ public class DemandFilterService {
             if (status != null && !status.isEmpty()) {
                 predicate = cb.and(predicate, cb.equal(root.get("status"), status));
             }
-            if (skillKey != null && skillValue != null) {
-                predicate = cb.and(predicate, cb.equal(root.get("skills").get(skillKey), skillValue));
-            }
-
             return predicate;
         };
     }

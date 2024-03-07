@@ -20,17 +20,15 @@ public class MemberFilterService {
 
     public List<Member> filterMembers(String employeeId, String firstName, String lastName,
                                       Date dateOfJoining, String location, Integer experience,
-                                      String status, String positionLevel, String skillKey,
-                                      Integer skillValue, Sort.Direction sortOrder) {
+                                      String status, String positionLevel) {
         Specification<Member> spec = createSpecification(employeeId, firstName, lastName, dateOfJoining, location,
-                experience, status, positionLevel, skillKey, skillValue);
-        return memberRepository.findAll(spec,Sort.by(sortOrder, "dateOfJoining"));
+                experience, status, positionLevel);
+        return memberRepository.findAll(spec);
     }
 
     private Specification<Member> createSpecification(String employeeId, String firstName, String lastName,
                                                       Date dateOfJoining, String location, Integer experience,
-                                                      String status, String positionLevel, String skillKey,
-                                                      Integer skillValue) {
+                                                      String status, String positionLevel) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -66,9 +64,6 @@ public class MemberFilterService {
                 predicates.add(criteriaBuilder.equal(root.get("positionLevel"), positionLevel));
             }
 
-            if (skillKey != null && skillValue != null) {
-                predicates.add(criteriaBuilder.equal(root.get("skills").get(skillKey), skillValue));
-            }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };

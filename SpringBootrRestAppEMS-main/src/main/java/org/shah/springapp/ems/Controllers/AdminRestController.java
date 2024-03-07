@@ -2,14 +2,19 @@ package org.shah.springapp.ems.Controllers;
 
 import org.shah.springapp.ems.Domains.Demand;
 import org.shah.springapp.ems.Domains.Member;
+import org.shah.springapp.ems.Domains.Request;
 import org.shah.springapp.ems.Exceptions.MemberNotFoundException;
 import org.shah.springapp.ems.Repository.DemandRepository;
 import org.shah.springapp.ems.Repository.MemberRepository;
+import org.shah.springapp.ems.Repository.RequestRepository;
+import org.shah.springapp.ems.Services.MemberFilterbySkill;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -84,6 +89,57 @@ public class AdminRestController {
 
         if (demandData.isPresent()) {
             return new ResponseEntity<>(demandData.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @Autowired
+    private MemberFilterbySkill memberFilterbySkill;
+    @GetMapping("/members/filter")
+    public List<Member> getMembersBySkill(
+            @RequestParam(required = false) String employeeId,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false)  @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateOfJoining,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) Integer experience,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String positionLevel,
+            @RequestParam(required = false) String skill) {
+        return memberFilterbySkill.filterMembers(employeeId, firstName, lastName, dateOfJoining, location,
+                experience, status, positionLevel,skill);
+    }
+
+    @Autowired
+    private RequestRepository requestRepository;
+    @GetMapping("/requests")
+    public List<Request> getAllRequests() {
+        return requestRepository.findAll();
+    }
+
+    @PutMapping ("/requests/approval/{id}")
+    public ResponseEntity<Request> updateTutorial(@PathVariable long id, @RequestBody Request updateRequest) {
+
+        Optional<Request> requestData = requestRepository.findById(id);
+        if (requestData.isPresent()) {
+            Request existingRequest= requestData.get();
+            String s = updateRequest.getStatus();
+            existingRequest.setStatus(s);
+            Demand d = demandRepository.getReferenceById(existingRequest.getDemand_id());
+            Member m = memberRepository.getReferenceById(existingRequest.getMember_id());
+            if(s.equalsIgnoreCase("APPROVED")){
+                d.setStatus("FULLFILLED");
+                m.setStatus("ASSIGNED to " + d.getMangerName() + " Project : " + d.getProjectName());
+            }else{
+                d.setStatus("NOT FULLFILLED");
+                m.setStatus("AVAILABLE");
+            }
+
+            demandRepository.save(d);
+            memberRepository.save(m);
+
+            return new ResponseEntity<>(requestRepository.save(existingRequest), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
