@@ -8,9 +8,7 @@ import lombok.Data;
 import org.shah.springapp.ems.Services.SkillConvertor;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Data
@@ -153,17 +151,39 @@ private Map<String,Integer> Skills = new HashMap<>();
     }
 
     public void setPositionLevel(String positionLevel) {
-        this.positionLevel = positionLevel;
+        ArrayList<String> positionLevels = new ArrayList<>(Arrays.asList(
+                "A00", "A01", "A02", "A03",
+                "AS1", "AS2",
+                "P01", "P02", "P03", "P04",
+                "PS1", "PS2", "PS3", "PS4",
+                "M01", "M02", "M03",
+                "E01", "E02", "E03", "E04",
+                "MS1", "MS2",
+                "ES1", "ES2"
+        ));
+        if(positionLevels.contains(positionLevel)){
+            this.positionLevel = positionLevel;
+        }else{
+            throw new IllegalArgumentException("Invalid positionLevel: " + positionLevel);
+        }
     }
 
     public Map<String, Integer> getSkills() {
         return Skills;
     }
 
-    public void setStatus(String status) {
+//    public void setStatus(String status) {
+//        this.status = status;
+//    }
+public void setStatus(String status) {
+    ArrayList<String> stats = new ArrayList<>(Arrays.asList("AVAILABLE","ASSIGNED"));
+    if(stats.contains(status)){
         this.status = status;
+    }else{
+        throw new IllegalArgumentException("Invalid status: " + status);
     }
 
+}
     public String getStatus() {
         return status;
     }
